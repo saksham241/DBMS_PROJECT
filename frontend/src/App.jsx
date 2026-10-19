@@ -54,7 +54,7 @@ function App() {
         <nav className="navbar">
           <div className="nav-container">
             <div className="nav-brand">
-              <h1>Vehicle Service</h1>
+              <h1>Digital Vehicle Service Management System</h1>
             </div>
             <ul className="nav-links">
               <li><Link to="/" className="router-link-active">Dashboard</Link></li>
@@ -80,6 +80,7 @@ function App() {
 
         <footer className="footer">
           <p>Vehicle Service Management System</p>
+          <p>Made by: TEAM 13</p>
         </footer>
       </div>
     </Router>
