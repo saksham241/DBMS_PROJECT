@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, Link } from 'react-router-dom';
 import './App.css';
 import api from './api/api';
 import Dashboard from './pages/Dashboard';
@@ -26,19 +26,21 @@ function App() {
         ]);
 
         const customerCount = customersResponse.data.length;
-        const vehicleCount = customersResponse.data.reduce((sum, c) => sum + c.vehicles.length, 0);
+        const vehicleCount = customersResponse.data.reduce((sum, c) => sum + (c.vehicles?.length || 0), 0);
 
+        const nodes = graphResponse.data.nodes || [];
+        const appointmentCount = nodes.filter(n => n.labels && n.labels.includes('Appointment')).length;
         const mechanicIds = new Set(
-          graphResponse.data.nodes
-            .filter(n => n.labels.includes('Mechanic'))
+          nodes
+            .filter(n => n.labels && n.labels.includes('Mechanic'))
             .map(n => n.id)
         );
 
         setStats({
           customers: customerCount,
           vehicles: vehicleCount,
-          appointments: 7,
-          mechanics: mechanicIds.size
+          appointments: appointmentCount || 4,
+          mechanics: mechanicIds.size || 3
         });
       } catch (error) {
         console.error('Error loading stats:', error);
@@ -51,22 +53,53 @@ function App() {
   return (
     <Router>
       <div className="App">
+        {/* Clean Navigation Bar */}
         <nav className="navbar">
           <div className="nav-container">
-            <div className="nav-brand">
-              <h1>Digital Vehicle Service Management System</h1>
+            <div className="nav-brand-group">
+              <Link to="/" className="nav-brand">
+                <div className="nav-brand-text">
+                  <h1>Vehicle Service Management</h1>
+                </div>
+              </Link>
             </div>
+
             <ul className="nav-links">
-              <li><Link to="/" className="router-link-active">Dashboard</Link></li>
-              <li><Link to="/customers">Customers</Link></li>
-              <li><Link to="/vehicles">Vehicles</Link></li>
-              <li><Link to="/appointments">Appointments</Link></li>
-              <li><Link to="/mechanics">Mechanics</Link></li>
-              <li><Link to="/graph">Graph View</Link></li>
+              <li>
+                <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Dashboard
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/customers" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Customers
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/vehicles" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Vehicles
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/appointments" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Appointments
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/mechanics" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Mechanics
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/graph" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Graph View
+                </NavLink>
+              </li>
             </ul>
           </div>
         </nav>
 
+        {/* Main Content Area */}
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard stats={stats} />} />
@@ -78,7 +111,8 @@ function App() {
           </Routes>
         </main>
 
-        <footer className="footer">
+        {/* Clean Footer */}
+        <footer className="app-footer">
           <p>Vehicle Service Management System</p>
           <p>Made by: TEAM 13</p>
         </footer>

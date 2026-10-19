@@ -41,7 +41,8 @@
   // This function takes a Cypher query string and optional
   // parameters, runs it against Neo4j, and returns results.
   async function runCypher(query, parameters = {}) {
-    const session = driver.session({ database: 'vehicle-service' });
+    const sessionOptions = process.env.NEO4J_DATABASE ? { database: process.env.NEO4J_DATABASE } : {};
+    const session = driver.session(sessionOptions);
     try {
       const result = await session.run(query, parameters);
       return result.records;
@@ -51,7 +52,7 @@
   }
  // Helper functions to convert Neo4j objects to plain JSON
   function elementId(node) {
-    return node.identity;  // Unique ID for the node
+    return node.elementId || (node.identity && node.identity.toNumber ? String(node.identity.toNumber()) : String(node.identity));
   }
   function nodeLabels(node) {
     return node.labels;    // e.g., ['Customer']
@@ -250,7 +251,7 @@
   // ============================================
   // START THE SERVER
   // ============================================
-  const PORT = 5000;
+  const PORT = process.env.PORT || 5001;
   app.listen(PORT, () => {
     console.log(`🚀 Backend API running at http://localhost:${PORT}`);
     console.log(`Test it: open http://localhost:${PORT}/ in your browser`);
